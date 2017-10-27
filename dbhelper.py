@@ -8,20 +8,23 @@ class DBHelper:
 
 	# Create table in DB called items with description column 
 	def setup(self):
-		print("creating table")
-		stmt = "CREATE TABLE IF NOT EXISTS items (description text, owner text)"
-		self.conn.execute(stmt)
-		self.conn.commit()
+	    tblstmt = "CREATE TABLE IF NOT EXISTS items (description text, owner text)"
+	    itemidx = "CREATE INDEX IF NOT EXISTS itemIndex ON items (description ASC)" 
+	    ownidx = "CREATE INDEX IF NOT EXISTS ownIndex ON items (owner ASC)"
+	    self.conn.execute(tblstmt)
+	    self.conn.execute(itemidx)
+	    self.conn.execute(ownidx)
+	    self.conn.commit()
 
 	# Insert item text into DB 
 	def add_item(self, item_text, owner):
-		stmt = "INSERT INTO items (description, owner) VALUES (?. ?)"
+		stmt = "INSERT INTO items (description, owner) VALUES (?, ?)"
 		args = (item_text, owner)
 		self.conn.execute(stmt, args)
 		self.conn.commit()
 
 	# Delete item text from DB 
-	def delete_item(self, item_text):
+	def delete_item(self, item_text, owner):
 		stmt = "DELETE FROM items WHERE description = (?) AND owner = (?)"
 		args = (item_text, owner)
 		self.conn.execute(stmt, args)
