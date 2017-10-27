@@ -48,10 +48,12 @@ def get_last_chat_id_and_text(updates):
 
 # Takes text of the message we want to send and the chat id of the chat where the message should be sent 
 # Calls sendMessage command and passes passes text and chat id via params 
-def send_message(text, chat_id):
+def send_message(text, chat_id, reply_markup=None):
 	# Utilize urllib to encode message text 
 	text =  urllib.pathname2url(text)
-	url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
+	url = URL + "sendMessage?text={}&chat_id={}&parse_mode=Markdown".format(text, chat_id)
+	if reply_markup:
+		url += "&reply_markup={}".format(reply_markup)
 	get_url(url)
 
 # Get the highest ID of all updates returned by getUpdates
@@ -61,22 +63,30 @@ def get_last_update_id(updates):
 		update_ids.append(int(update["update_id"]))
 	return max(update_ids)
 
+# Create a keyboard from a list of items 
+def build_keyboard(items):
+	keyboard = [[item] for item in items]
+	reply_markup = {"keyboard":keyboard, "one_time_keyboard": True}
+	return json.dumps(reply_markup)
+
 def handle_updates(updates):
     for update in updates["result"]:
-        try:
-				text = update["message"]["text"]
-				chat = update["message"]["chat"]["id"]
-				items = db.get_items()
-				if text in items:
-				    db.delete_item(text)
-				    items = db.get_items()
-				else:
-				    db.add_item(text)
-				    items = db.get_items()
-				message = "\n".join(items)
-				send_message(message, chat)
-        except KeyError:
-            pass
+		text = update["message"]["text"]
+		chat = update["message"]["chat"]["id"]
+		items = db.get_items()
+		if text == "/done":
+			keyboard = build_keyboard(items)
+			send_message("Select an item to delete", chat, keyboard)
+		elif text in items: 
+			db.delete_item(text)
+			items = db.get_items()
+			keyboard = build_keyboard(items)
+			send_message("Select an item to delete", chat, keyboard)
+		else:
+			db.add_item(text)
+			items = db.get_items()
+			message = "\n".join(items)
+			send_message(message, chat)
 
 def main():
 	db.setup()
