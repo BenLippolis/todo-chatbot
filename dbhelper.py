@@ -27,7 +27,7 @@ class DBHelper:
 		self.conn.commit()
 
 	# Return a list of all items in DB 
-	# SQLite always returns data in tuple format 
+	# SQLite always returns data in tuple
 	def get_items(self):
 		stmt = "SELECT description FROM items"
 		return [x[0] for x in self.conn.execute(stmt)]
