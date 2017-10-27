@@ -23,10 +23,11 @@ def get_json_from_url(url):
 	return js
 
 # Returns list of messages sent to our bot 
+# Uses long polling to limit requests (timeout=100)
 def get_updates(offset=None):
-	url = URL + "getUpdates"
+	url = URL + "getUpdates?timeout=100"
 	if offset:
-		url += "?offset={}".format(offset)
+		url += "&offset={}".format(offset)
 	js = get_json_from_url(url)
 	return js
 
@@ -64,6 +65,7 @@ def echo_all(updates):
 def main():
 	last_update_id = None
 	while True:
+		print("getting updates biatch")
 		updates = get_updates(last_update_id)
 		if len(updates["result"]) > 0:
 			last_update_id = get_last_update_id(updates) + 1
