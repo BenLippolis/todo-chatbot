@@ -1,7 +1,9 @@
 # Parse JSON telegram responses 
 import json 
 # Make web requests using python 
-import requests 
+import requests
+
+import time  
 
 # Telegram token 
 TOKEN = "405620811:AAEYygXLGGdhhAnUNaYkYo3G7LwDDRMAOuQ"
@@ -40,5 +42,14 @@ def send_message(text, chat_id):
 	url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
 	get_url(url)
 
-text, chat = get_last_chat_id_and_text(get_updates())
-send_message(text, chat)
+def main():
+	last_textchat = (None, None)
+	while True:
+		text, chat = get_last_chat_id_and_text(get_updates())
+		if (text, chat) != last_textchat:
+			send_message(text, chat)
+			last_textchat = (text, chat)
+		time.sleep(0.5)
+
+if __name__ == '__main__':
+	main()
