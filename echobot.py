@@ -3,7 +3,9 @@ import json
 # Make web requests using python 
 import requests
 
-import time  
+import time 
+
+import urllib 
 
 # Telegram token 
 TOKEN = "405620811:AAEYygXLGGdhhAnUNaYkYo3G7LwDDRMAOuQ"
@@ -42,6 +44,8 @@ def get_last_chat_id_and_text(updates):
 # Takes text of the message we want to send and the chat id of the chat where the message should be sent 
 # Calls sendMessage command and passes passes text and chat id via params 
 def send_message(text, chat_id):
+	# Utilize urllib to encode message text 
+	text = urllib.parse.quote_plus(text)
 	url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
 	get_url(url)
 
@@ -65,7 +69,6 @@ def echo_all(updates):
 def main():
 	last_update_id = None
 	while True:
-		print("getting updates biatch")
 		updates = get_updates(last_update_id)
 		if len(updates["result"]) > 0:
 			last_update_id = get_last_update_id(updates) + 1
